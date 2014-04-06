@@ -13,11 +13,14 @@ copyright:      Maciej Bendkowski
 
 library
   hs-source-dirs:  src
-  build-depends:   base >= 4
+  build-depends:   
+                   base >= 4,
+                   containers
   ghc-options:     -Wall
   other-modules:   
                    Memo,
                    CL,
                    ParserUtils,
-                   CLParser
+                   CLParser,
+                   LC
 
