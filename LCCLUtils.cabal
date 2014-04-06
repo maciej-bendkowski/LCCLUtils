@@ -1,0 +1,18 @@
+name:           LCCLUtils
+version:        0.1
+cabal-version:  >=1.2
+build-type:     Simple
+author:         Maciej Bendkowski
+maintainer:     Maciej Bendkowski
+stability:      experimental
+homepage:       https://github.com/maciej-bendkowski/LCCLUtils
+category:       Lambda calculus, Combinatory Logic, utilities
+license-file:   LICENSE
+license:        MIT
+copyright:      Maciej Bendkowski
+
+library
+  hs-source-dirs:  src
+  build-depends:   base >= 4
+  ghc-options:     -Wall
+
