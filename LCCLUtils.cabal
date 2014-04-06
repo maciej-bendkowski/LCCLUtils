@@ -23,5 +23,6 @@ library
                    ParserUtils,
                    CLParser,
                    LC,
-                   LCParser
+                   LCParser,
+                   Translator
 
