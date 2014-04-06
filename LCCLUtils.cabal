@@ -15,5 +15,7 @@ library
   hs-source-dirs:  src
   build-depends:   base >= 4
   ghc-options:     -Wall
-  other-modules:   Memo
+  other-modules:   
+                   Memo,
+                   CL
 
