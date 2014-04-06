@@ -17,5 +17,7 @@ library
   ghc-options:     -Wall
   other-modules:   
                    Memo,
-                   CL
+                   CL,
+                   ParserUtils,
+                   CLParser
 
