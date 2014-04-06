@@ -15,7 +15,8 @@ library
   hs-source-dirs:  src
   build-depends:   
                    base >= 4,
-                   containers
+                   containers,
+                   QuickCheck
   ghc-options:     -Wall
   other-modules:   Memo
   exposed-modules: 
