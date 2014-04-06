@@ -17,12 +17,12 @@ library
                    base >= 4,
                    containers
   ghc-options:     -Wall
-  other-modules:   
-                   Memo,
+  other-modules:   Memo
+  exposed-modules: 
                    CL,
-                   ParserUtils,
                    CLParser,
                    LC,
                    LCParser,
+                   ParserUtils,
                    Translator
 
