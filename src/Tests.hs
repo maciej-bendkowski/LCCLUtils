@@ -30,24 +30,40 @@ module Tests where
     arbTerm 0 = oneof [return K, return S]
     arbTerm n = frequency
             [(1, return S), (1, return K),
-            (4, liftM2 (App) (arbTerm (n `div` 2)) (arbTerm (n `div` 2)))]
+            (5, liftM2 (App) (arbTerm (n `div` 2)) (arbTerm (n `div` 2)))]
     
     -- random SK tree generator
     instance Arbitrary Term where
         arbitrary = sized arbTerm
     
     -- SK-terms have non-negative size
-    prop_NonnegativeSize :: Term -> Bool
-    prop_NonnegativeSize t = (size t) >=0
+    prop_NonnegativeSize :: Term -> Property
+    prop_NonnegativeSize t = collect (size t) $ (size t) >= 0
     
     -- Each SK-term is a subterm of itself
-    prop_SubtermItself :: Term -> Bool
-    prop_SubtermItself t = t `isSubterm` t
+    prop_SubtermItself :: Term -> Property
+    prop_SubtermItself t = collect (size t) $ t `isSubterm` t
     
-    -- full test suite
-    suite :: [([Char], Term -> Bool)]
+    -- Reduction applies only to terms containing redexes
+    prop_ReductRedex :: Term -> Property
+    prop_ReductRedex t = collect (size t) $ hasRedex t ==> 
+        case headReduction t of
+            (_, _, True) -> True
+            _ -> False
+    
+    -- Don't reduct terms without redexes
+    prop_DontReductWithoutRedex :: Term -> Property
+    prop_DontReductWithoutRedex t = collect (size t) $ (not $ hasRedex t) ==> 
+        case headReduction t of
+            (_, _, False) -> True
+            _ -> False
+    
+    -- full test suites
+    suite :: [([Char], Term -> Property)]
     suite = [("SK-terms have non-negative size", prop_NonnegativeSize),
-        ("Each SK-term is a subterm of itself",  prop_SubtermItself)]
+        ("Each SK-term is a subterm of itself",  prop_SubtermItself),
+        ("Reduction applies only to terms containing redexes", prop_ReductRedex),
+        ("Don't reduct terms without redexes", prop_DontReductWithoutRedex)]
     
     -- test runner
     main :: IO ()

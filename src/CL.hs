@@ -37,6 +37,12 @@ module CL where
             show' (App x  p @ (App _ _)) = show' x . ("(" ++) . show' p . (")" ++)
             show' (App x y) = show' x . show' y
    
+    -- primitive combinator check
+    isCombinator :: Term -> Bool
+    isCombinator S = True
+    isCombinator K = True
+    isCombinator _ = False
+   
     -- number of internal nodes
     size :: Term -> Int
     size (App x y) = (size x) + (size y) + 1
@@ -108,3 +114,11 @@ module CL where
             left = e `isSubterm` t'
             right = e `isSubterm` t''
     isSubterm e t = e == t
+    
+    -- redex subterm check
+    hasRedex :: Term -> Bool
+    hasRedex K = False
+    hasRedex S = False
+    hasRedex (App (App K _) _) = True
+    hasRedex (App (App (App S _) _) _) = True
+    hasRedex (App t' t'') = hasRedex t' || hasRedex t''
