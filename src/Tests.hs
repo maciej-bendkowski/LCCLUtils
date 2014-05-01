@@ -62,8 +62,8 @@ module Tests where
     suite :: [([Char], Term -> Property)]
     suite = [("SK-terms have non-negative size", prop_NonnegativeSize),
         ("Each SK-term is a subterm of itself",  prop_SubtermItself),
-        ("Reduction applies only to terms containing redexes", prop_ReductRedex),
-        ("Don't reduct terms without redexes", prop_DontReductWithoutRedex)]
+        ("SK-Reduction applies only to terms containing redexes", prop_ReductRedex),
+        ("Don't reduct SK-terms without redexes", prop_DontReductWithoutRedex)]
     
     -- test runner
     main :: IO ()
