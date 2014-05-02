@@ -101,6 +101,13 @@ module LC where
     reduct (App (Abs x t) s) = (sub t x s, True)
     reduct t = (t, False)
     
+    -- redex subterm check
+    hasRedex :: Term -> Bool
+    hasRedex (App (Abs _ _) _) = True
+    hasRedex (App t t') = hasRedex t || hasRedex t'
+    hasRedex (Abs _ t) = hasRedex t
+    hasRedex _ = False
+    
     -- head position reduction step
     headReduction :: Term -> (Term, Bool)
     headReduction t @ (App x y) = case reduct t of

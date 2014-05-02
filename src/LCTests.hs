@@ -64,10 +64,26 @@ module LCTests where
             isAbs :: Term -> Bool
             isAbs (Abs _ _) = True
             isAbs _ = False
+            
+    -- Reduction applies only to terms containing redexes
+    propLC_ReductRedex :: Term -> Property
+    propLC_ReductRedex t = collect (size t) $ hasRedex t ==> 
+        case headReduction t of
+            (_, True) -> True
+            _ -> False
+    
+    -- Don't reduct terms without redexes
+    propLC_DontReductWithoutRedex :: Term -> Property
+    propLC_DontReductWithoutRedex t = collect (size t) $ (not $ hasRedex t) ==> 
+        case headReduction t of
+            (_, False) -> True
+            _ -> False
     
     suite :: [([Char], Term -> Property)]
     suite = [("LC-terms have non-negative size", propLC_NonnegativeSize),
-        ("Variable rename does not affect free variables", propLC_VarRemane)]
+        ("Variable rename does not affect free variables", propLC_VarRemane),
+        ("Reduction applies only to terms containing redexes", propLC_ReductRedex),
+        ("Don't reduct terms without redexes", propLC_DontReductWithoutRedex)]
     
     -- test runner
     main :: IO ()
