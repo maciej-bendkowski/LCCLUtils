@@ -18,7 +18,9 @@ library
                    containers,
                    QuickCheck
   ghc-options:     -Wall
-  other-modules:   Memo
+  other-modules:   
+                   Memo,
+                   LCTests
   exposed-modules: 
                    CL,
                    CLParser,

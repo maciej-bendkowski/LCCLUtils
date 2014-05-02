@@ -20,51 +20,51 @@
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -}
-module Tests where
+module CLTests where
     import Control.Monad (liftM2)
     import Test.QuickCheck
     import CL
     
     -- SK trees with bounded size
-    arbTerm :: Integral a => a -> Gen Term
-    arbTerm 0 = oneof [return K, return S]
-    arbTerm n = frequency
+    arbSKTerm :: Integral a => a -> Gen Term
+    arbSKTerm 0 = oneof [return K, return S]
+    arbSKTerm n = frequency
             [(1, return S), (1, return K),
-            (5, liftM2 (App) (arbTerm (n `div` 2)) (arbTerm (n `div` 2)))]
+            (5, liftM2 (App) (arbSKTerm (n `div` 2)) (arbSKTerm (n `div` 2)))]
     
     -- random SK tree generator
     instance Arbitrary Term where
-        arbitrary = sized arbTerm
+        arbitrary = sized arbSKTerm
     
     -- SK-terms have non-negative size
-    prop_NonnegativeSize :: Term -> Property
-    prop_NonnegativeSize t = collect (size t) $ (size t) >= 0
+    propCL_NonnegativeSize :: Term -> Property
+    propCL_NonnegativeSize t = collect (size t) $ (size t) >= 0
     
     -- Each SK-term is a subterm of itself
-    prop_SubtermItself :: Term -> Property
-    prop_SubtermItself t = collect (size t) $ t `isSubterm` t
+    propCL_SubtermItself :: Term -> Property
+    propCL_SubtermItself t = collect (size t) $ t `isSubterm` t
     
     -- Reduction applies only to terms containing redexes
-    prop_ReductRedex :: Term -> Property
-    prop_ReductRedex t = collect (size t) $ hasRedex t ==> 
+    propCL_ReductRedex :: Term -> Property
+    propCL_ReductRedex t = collect (size t) $ hasRedex t ==> 
         case headReduction t of
             (_, _, True) -> True
             _ -> False
     
     -- Don't reduct terms without redexes
-    prop_DontReductWithoutRedex :: Term -> Property
-    prop_DontReductWithoutRedex t = collect (size t) $ (not $ hasRedex t) ==> 
+    propCL_DontReductWithoutRedex :: Term -> Property
+    propCL_DontReductWithoutRedex t = collect (size t) $ (not $ hasRedex t) ==> 
         case headReduction t of
             (_, _, False) -> True
             _ -> False
     
-    -- full test suites
+    -- full test suite
     suite :: [([Char], Term -> Property)]
-    suite = [("SK-terms have non-negative size", prop_NonnegativeSize),
-        ("Each SK-term is a subterm of itself",  prop_SubtermItself),
-        ("SK-Reduction applies only to terms containing redexes", prop_ReductRedex),
-        ("Don't reduct SK-terms without redexes", prop_DontReductWithoutRedex)]
-    
+    suite = [("SK-terms have non-negative size", propCL_NonnegativeSize),
+        ("Each SK-term is a subterm of itself",  propCL_SubtermItself),
+        ("SK-Reduction applies only to terms containing redexes", propCL_ReductRedex),
+        ("Don't reduct SK-terms without redexes", propCL_DontReductWithoutRedex)]
+        
     -- test runner
     main :: IO ()
     main  = mapM_ (\(s, a) -> do

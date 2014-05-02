@@ -68,6 +68,10 @@ module LC where
         vars' :: [String]
         vars' = [c : "" | c <- ['a'..'z']]
     
+    -- finds a new, fresh variable
+    freshVariable :: [String] -> String
+    freshVariable vs = fromJust $ find (\z -> z `notElem` vs) vars
+    
     -- rename v to z in t
     rename :: Term -> String -> String -> Term
     rename t @ (Var x) v z 
