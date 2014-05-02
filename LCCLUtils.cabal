@@ -20,7 +20,8 @@ library
   ghc-options:     -Wall
   other-modules:   
                    Memo,
-                   LCTests
+                   LCTests,
+                   TranslatorTest
   exposed-modules: 
                    CL,
                    CLParser,
