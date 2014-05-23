@@ -23,17 +23,20 @@
 module TranslatorTest where
     import Control.Monad (liftM2)
     import Data.Set (null)
+    import Data.Maybe (fromJust, isJust)
     import Test.QuickCheck
-    import LC
+    import CLLCTranslator
+    import qualified LC
+    import qualified CL
     
     -- Closed LC trees with bounded size
     arbLCTerm :: Integral a => a -> Gen LC.Term
     arbLCTerm n = let
-            x = head vars in liftM2 (LC.Abs) (return x) (arbLCTerm' [x] n) where
+            x = head LC.vars in liftM2 (LC.Abs) (return x) (arbLCTerm' [x] n) where
         arbLCTerm' :: Integral a => [String] -> a -> Gen LC.Term
         arbLCTerm' boundVars 0 = elements $ map (\s -> LC.Var s) boundVars
         arbLCTerm' boundVars k = let
-            x = freshVariable boundVars in frequency
+            x = LC.freshVariable boundVars in frequency
                 [(1, elements $ map (\s -> LC.Var s) boundVars),
                 (3, liftM2 (LC.App) (arbLCTerm' boundVars (k `div` 2)) (arbLCTerm' boundVars (k `div` 2))),
                 (3, liftM2 (LC.Abs) (return x) (arbLCTerm' (x : boundVars) (k - 1)))]
@@ -46,8 +49,23 @@ module TranslatorTest where
     prop_ClosedTerms :: LC.Term -> Property
     prop_ClosedTerms t = collect (LC.size t) $ Data.Set.null (LC.freeVars t)
     
+    -- LC to CL translation preserves extensional equality
+    prop_LCCLTranslation :: LC.Term -> Property
+    prop_LCCLTranslation t = collect (LC.size t) $ (toCL' t) 
+        `CL.reducesTo` (clNF $ toCL' $ lcNF t) where
+         
+         toCL' :: LC.Term -> CL.Term
+         toCL' t' = fromJust $ toCL t'
+         
+         lcNF :: LC.Term -> LC.Term
+         lcNF t' = last $ LC.boundNormalForm 250 t'
+         
+         clNF :: CL.Term -> CL.Term
+         clNF t' = last $ CL.boundNormalForm 250 t'
+    
     suite :: [([Char], LC.Term -> Property)]
-    suite = [("Generated LC terms are closed", prop_ClosedTerms)]
+    suite = [("Generated LC terms are closed", prop_ClosedTerms),
+            ("LC to CL translation preserves extensional equality", prop_LCCLTranslation)]
     
     -- test runner
     main :: IO ()
