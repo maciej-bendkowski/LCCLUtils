@@ -122,3 +122,11 @@ module CL where
     hasRedex (App (App K _) _) = True
     hasRedex (App (App (App S _) _) _) = True
     hasRedex (App t' t'') = hasRedex t' || hasRedex t''
+    
+    -- normal form check
+    isInNormalForm :: Term -> Bool
+    isInNormalForm t = not $ hasRedex t
+    
+    -- reduces to check
+    reducesTo :: Term -> Term -> Bool
+    reducesTo t r = any (r ==) $ normalFormReductionList t
