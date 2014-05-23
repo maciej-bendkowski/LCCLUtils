@@ -21,12 +21,15 @@ library
   other-modules:   
                    Memo,
                    LCTests,
-                   TranslatorTest
+                   TranslatorTest,
+                   BCKW,
+                   BCKWTests,
+                   BCKWTranslator
   exposed-modules: 
                    CL,
                    CLParser,
                    LC,
                    LCParser,
                    ParserUtils,
-                   Translator
+                   CLLCTranslator
 
