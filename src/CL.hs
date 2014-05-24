@@ -23,6 +23,7 @@
 -}
 module CL where
     import Memo
+    import Types
 
     -- SK CL term
     data Term =  S | K 
@@ -36,17 +37,6 @@ module CL where
             show' K = ("K" ++)
             show' (App x  p @ (App _ _)) = show' x . ("(" ++) . show' p . (")" ++)
             show' (App x y) = show' x . show' y
-   
-    -- primitive combinator check
-    isCombinator :: Term -> Bool
-    isCombinator S = True
-    isCombinator K = True
-    isCombinator _ = False
-   
-    -- number of internal nodes
-    size :: Term -> Int
-    size (App x y) = (size x) + (size y) + 1
-    size _ = 0
     
     -- infinite CL term list grouped by term size
     terms :: Tree [Term]
@@ -62,6 +52,22 @@ module CL where
             
             partitions :: Int -> [(Int, Int)]
             partitions k = [(x, y) | x <- [0..k], y <- [0..k], x + y == k]
+   
+    instance Measurable Term where
+        
+        size (App x y) = (size x) + (size y) + 1
+        size _ = 0
+        
+        ofSize k = idx terms k
+        
+        density f k = length . filter (\x -> x == True)
+            $ map f $ ofSize k
+   
+    -- primitive combinator check
+    isCombinator :: Term -> Bool
+    isCombinator S = True
+    isCombinator K = True
+    isCombinator _ = False
         
     -- single CL reduction step    
     reduct :: Term -> (Term, Bool)

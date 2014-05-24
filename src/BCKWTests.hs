@@ -24,6 +24,7 @@ module BCKWTests where
     import Control.Monad (liftM2)
     import Test.QuickCheck
     import BCKW
+    import Types
     
     -- SK trees with bounded size
     arbSKTerm :: Integral a => a -> Gen Term

@@ -26,6 +26,7 @@ module BCKWTranslatorTest where
     import BCKWTranslator
     import Control.Monad (liftM2)
     import Test.QuickCheck
+    import Types
     
     -- SK trees with bounded size
     arbSKTerm :: Integral a => a -> Gen CL.Term
@@ -40,7 +41,7 @@ module BCKWTranslatorTest where
         
     -- CL to BCKW translation preserves extensional equality
     prop_CLBCKWTranslation :: CL.Term -> Property
-    prop_CLBCKWTranslation t = collect (CL.size t) $ (toBCKW t) 
+    prop_CLBCKWTranslation t = collect (size t) $ (toBCKW t) 
         `BCKW.reducesTo` (bckwNF $ toBCKW $ clNF t) where
          
          bckwNF :: BCKW.Term -> BCKW.Term
