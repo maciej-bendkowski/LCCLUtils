@@ -23,7 +23,7 @@
 module TranslatorTest where
     import Control.Monad (liftM2)
     import Data.Set (null)
-    import Data.Maybe (fromJust, isJust)
+    import Data.Maybe (fromJust)
     import Test.QuickCheck
     import CLLCTranslator
     import qualified LC
