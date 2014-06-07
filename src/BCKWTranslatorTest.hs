@@ -28,16 +28,16 @@ module BCKWTranslatorTest where
     import Test.QuickCheck
     import Types
     
-    -- SK trees with bounded size
-    arbSKTerm :: Integral a => a -> Gen CL.Term
-    arbSKTerm 0 = oneof [return CL.K, return CL.S]
-    arbSKTerm n = frequency
+    -- BCKW trees with bounded size
+    arbBCKWTerm :: Integral a => a -> Gen CL.Term
+    arbBCKWTerm 0 = oneof [return CL.K, return CL.S]
+    arbBCKWTerm n = frequency
             [(1, return CL.S), (1, return CL.K),
-            (5, liftM2 (CL.App) (arbSKTerm (n `div` 2)) (arbSKTerm (n `div` 2)))]
+            (5, liftM2 (CL.App) (arbBCKWTerm (n `div` 2)) (arbBCKWTerm (n `div` 2)))]
     
-    -- random SK tree generator
+    -- random BCKW tree generator
     instance Arbitrary CL.Term where
-        arbitrary = sized arbSKTerm
+        arbitrary = sized arbBCKWTerm
         
     -- CL to BCKW translation preserves extensional equality
     prop_CLBCKWTranslation :: CL.Term -> Property

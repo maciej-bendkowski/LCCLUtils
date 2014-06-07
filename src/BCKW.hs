@@ -24,12 +24,18 @@
 module BCKW where
     import Memo
     import Types
+    import CommonUtils
 
-    -- Curry BCKW system term
+    {-|
+        Haskell Curry's BCKW system.
+    -}
     data Term =  B | C | K | W 
         | App Term Term deriving (Eq)
         
-    -- pretty print    
+    {-|
+        String representation following common term notations, i.e.
+        outermost parentheses are omitted, application is binding to the left.
+    -}  
     instance Show Term where
         show t = show' t "" where
             show' :: Term -> ShowS
@@ -40,7 +46,10 @@ module BCKW where
             show' (App x  p @ (App _ _)) = show' x . ("(" ++) . show' p . (")" ++)
             show' (App x y) = show' x . show' y
     
-    -- infinite CL term list grouped by term size
+    {-|
+        Infinite binary tree of BCKW combinatorial classes, i.e.
+        lists of terms grouped by size.
+    -}
     terms :: Tree [Term]
     terms = fmap (terms' g) nats where
         g :: Int -> [Term]
@@ -55,17 +64,40 @@ module BCKW where
             partitions :: Int -> [(Int, Int)]
             partitions k = [(x, y) | x <- [0..k], y <- [0..k], x + y == k]
     
+    {-|
+        Computes the number of terms of size n.
+    -}
+    termsOfSize :: Integer -> Integer
+    termsOfSize n = (4 ^ (n + 1)) * catalan n
+    
+    {-|
+        Common measurable BCWK term functions inherited
+        from the Measurable typeclass.
+    -}
     instance Measurable Term where
         
+        {-|
+            Number of applications in the term structure.
+        -}
         size (App x y) = (size x) + (size y) + 1
         size _ = 0
         
+        {-|
+            Retrieves the k-th combinatorial class in O(log k) time.
+        -}
         ofSize k = idx terms k
         
-        density f k = length . filter (\x -> x == True)
-            $ map f $ ofSize k
+        {-|
+            Computes the relative density of terms of size k, satisfying
+            the predicate f in the overall terms of size k.
+        -}
+        density f k = (fromIntegral t) / (fromIntegral $ termsOfSize $ toInteger k) where
+            t = length . filter (\x -> x == True) $ map f $ ofSize k
             
-    -- primitive combinator check
+    {-|
+        Checks if the given term is a
+        primitive combinator or not.
+    -}
     isCombinator :: Term -> Bool
     isCombinator B = True
     isCombinator C = True
@@ -73,7 +105,11 @@ module BCKW where
     isCombinator W = True
     isCombinator _ = False
      
-    -- single CL reduction step    
+    {-|
+        Performs a single reduction step
+        to the given term if possible. Returns
+        a pair (reduct, performed reduction?)
+    -}    
     reduct :: Term -> (Term, Bool)
     reduct (App (App K x) _) = (x, True)
     reduct (App (App (App B x) y) z) = (App x (App y z), True)
@@ -81,7 +117,11 @@ module BCKW where
     reduct (App (App W x) y) = (App (App x y) y, True)
     reduct t' = (t', False)
     
-    -- head position reduction step
+    {-|
+        Performs a single head position reduction step
+        to the given term if possible. Returns
+        (reduct, redex term, performed reduction?)
+    -}
     headReduction :: Term -> (Term, Term, Bool)
     headReduction t @ (App x y) = case reduct t of
         (r, True) -> (r, t, True)
@@ -92,33 +132,54 @@ module BCKW where
                 (_, _, False) -> (t, t, False)
     headReduction x = (x, x, False)
     
-    -- iterative head position reduction application 
+    {-|
+        Finds the normal form a given term if possible.
+        Note, this function may not terminate.
+    -}
     normalForm :: Term -> Term
     normalForm t = case headReduction t of
         (r, _, True) -> normalForm r
         (_, _, False) -> t
         
-    -- iterative head position reduction application
-    -- resulting in an (possibly) infinite list of intermidiate reduction terms
+    {-|
+        Returns a (possibly infinite) list of intermediate
+        reduction terms resulting from applying the head 
+        position reduction.
+    -}
     normalFormReductionList :: Term -> [Term]
     normalFormReductionList t = case headReduction t of
         (r, _, True) -> r : normalFormReductionList r
         (_, _, False) -> [t]
-        
+    
+    {-|
+        Returns a list of the first k intermediate
+        reduction terms resulting from applying the head 
+        position reduction.
+    -}    
     boundNormalForm :: Int -> Term -> [Term]
     boundNormalForm k t = take k $ normalFormReductionList t
     
-    -- iterative head position reduction application
-    -- resulting in an (possibly) infinite list of intermidiate redex terms
+    {-|
+        Returns a (possibly infinite) list of intermediate
+        reduction redexes resulting from applying the head 
+        position reduction.
+    -}
     normalFormRedexList :: Term -> [Term]
     normalFormRedexList t = case headReduction t of
         (r, x, True) -> x : normalFormRedexList r
         (_, x, False) -> [x]
-        
+    
+    {-|
+        Returns a list of the first k intermediate
+        reduction redexes resulting from applying the head 
+        position reduction.
+    -}    
     boundNormalFormRedex :: Int -> Term -> [Term]
     boundNormalFormRedex k t = take k $ normalFormRedexList t
     
-    -- subterm check
+    {-|
+        Checks if e is a subterm of t.
+    -}
     isSubterm :: Term -> Term -> Bool
     isSubterm e t @ (App t' t'')
         | e == t = True 
@@ -127,7 +188,9 @@ module BCKW where
             right = e `isSubterm` t''
     isSubterm e t = e == t
     
-    -- redex subterm check
+    {-|
+        Checks if the given term has a redex.
+    -}
     hasRedex :: Term -> Bool
     hasRedex B = False
     hasRedex C = False
@@ -139,10 +202,15 @@ module BCKW where
     hasRedex (App (App W _) _) = True
     hasRedex (App t' t'') = hasRedex t' || hasRedex t''
     
-    -- normal form check
+    {-|
+        Checks if the given term is in normal form.
+    -}
     isInNormalForm :: Term -> Bool
     isInNormalForm t = not $ hasRedex t
     
-    -- reduces to check
+    {-|
+        Checks if t reduces to r in finite reduction steps.
+        Note, that this function may not terminate.
+    -}
     reducesTo :: Term -> Term -> Bool
     reducesTo t r = any (r ==) $ normalFormReductionList t

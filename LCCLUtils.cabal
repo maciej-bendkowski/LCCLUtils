@@ -27,7 +27,8 @@ library
                    BCKWTranslator,
                    BCKWTranslatorTest,
                    Types,
-                   CLUtils
+                   CLUtils,
+                   CommonUtils
   exposed-modules: 
                    CL,
                    CLParser,

@@ -20,27 +20,19 @@
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -}
-module BCKWTranslator where
-    import qualified CL
-    import qualified BCKW
+module CommonUtils where
     
     {-|
-        Translates the given BCKW term to an
-        extensionally equivalent CL term.
+        Computes the binominal(n, k).
     -}
-    toCL :: BCKW.Term -> CL.Term
-    toCL BCKW.B = CL.App (CL.App CL.S (CL.App CL.K CL.S)) CL.K
-    toCL BCKW.C = CL.App (CL.App CL.S ( CL.App (CL.App CL.S (CL.App CL.K 
-        (CL.App (CL.App CL.S (CL.App CL.K CL.S)) CL.K))) CL.S )) (CL.App CL.K CL.K)
-    toCL BCKW.W = CL.App (CL.App CL.S CL.S) (CL.App CL.S CL.K) 
-    toCL BCKW.K = CL.K
-    toCL (BCKW.App t t') = CL.App (toCL t) (toCL t')
+    binom :: Integer -> Integer -> Integer
+    binom _ 0 = 1
+    binom 0 _ = 0
+    binom n k = let b = binom (n - 1) (k - 1)
+        in seq b n * b `div` k
     
     {-|
-        Translates the given CL term to an
-        extensionally equivalent BCKW term.
+        Computes the n-th Catalan number.
     -}
-    toBCKW :: CL.Term -> BCKW.Term
-    toBCKW CL.S = BCKW.App (BCKW.App BCKW.B (BCKW.App BCKW.B BCKW.W)) (BCKW.App (BCKW.App BCKW.B BCKW.B) BCKW.C)
-    toBCKW CL.K = BCKW.K
-    toBCKW (CL.App t t') = BCKW.App (toBCKW t) (toBCKW t')
+    catalan :: Integer -> Integer
+    catalan n = binom (2 * n) n `div` (n + 1)

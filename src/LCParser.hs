@@ -31,7 +31,9 @@ module LCParser where
     -- <subterm> := <variable> | <abstraction> | "(" <term> ")"
     -- <term> := <subterm>+
     
-    -- variable parser
+    {-|
+        Variable parser.
+    -}
     variableParser :: Parser Term
     variableParser = do
         c <- charParser
@@ -43,7 +45,9 @@ module LCParser where
             numberParser :: Parser String
             numberParser = star $ itemPred isDigit
     
-    -- abstraction parser        
+    {-|
+        Abstraction parser.
+    -}       
     abstractionParser :: Parser Term
     abstractionParser = do
         _ <- symb "\\"
@@ -51,7 +55,10 @@ module LCParser where
         _ <- symb "."
         t <- termParser
         return $ Abs (name v) t
-         
+    
+    {-|
+        Subterm parser.
+    -}     
     subtermParser :: Parser Term
     subtermParser = variableParser `dmplus` abstractionParser `dmplus` termParser' where
         termParser' :: Parser Term
@@ -60,7 +67,10 @@ module LCParser where
             t <- termParser
             _ <- symb ")"
             return t
-        
+    
+    {-|
+        Term parser.
+    -}    
     termParser :: Parser Term
     termParser = do
         ts <- pstar subtermParser
@@ -69,7 +79,11 @@ module LCParser where
             apply' t [] = t
             apply' t (t':[]) = App t t'
             apply' t (t':ts) = apply' (App t t') ts
-                
+    
+    {-|
+        Attempts to parse a LC term
+        from the given string.
+    -}            
     parseLC :: String -> Maybe Term
     parseLC s = case apply termParser s of
         (x:_) -> if null (snd x) then

@@ -27,23 +27,34 @@ module CLUtils where
     import CLParser
     import Data.Maybe
     
-    -- finds NWN candidates of size k using n reductions
+    {-|
+        Finds candidates of size k, that do not admit a normal form
+        after performing n reduction steps.
+    -}
     findCandidates :: Int -> Int -> [Term]
     findCandidates k n = map (\x -> ofSize k !! (fst x)) $ filter (\x -> snd x == n) $ zip [0..]
         (map (\x -> length $ boundNormalForm n x) $ ofSize k)
     
-    -- finds NWN candidates of size k using n reductions
-    -- reducing the result by eliminating terms having NWN 
-    -- candidates of size (k - 1) as subterms
+    {-|
+        Finds candidates of size k, that do not admit a normal form
+        after performing n reduction steps and moreover do not contain
+        candidates of size k - 1 as subterms.
+    -}
     extract :: Int -> Int -> [Term]
     extract k n = filter (\y -> all (\x -> not $ isSubterm x y) xs) ys where
         xs = findCandidates (k - 1) n
         ys = findCandidates k n
     
-    -- normalizes terms of size k or less with the exception of ts    
+    {-|
+       Normalizes all terms of size k or less, with the
+       exception of the given term list.
+    -}
     normalize :: Int -> [Term] -> [Term]
     normalize k ts = map normalForm $ (tms \\ ts) where
         tms = concat . take (k + 1) $ map ofSize [0..]
-        
+    
+    {-|
+        List of two S-terms of size 6 without normal forms.
+    -}    
     leastWithoutNF :: [Term]
     leastWithoutNF = [fromJust $ parseCL "SSS(SS)SS", fromJust $ parseCL "S(SS)SSSS"]

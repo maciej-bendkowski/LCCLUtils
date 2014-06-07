@@ -22,21 +22,29 @@
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -}
 module Memo where
-    -- open recursion memorization pattern
 
-    -- infinite full binary tree
+    {-|
+        An infinite binary tree data structure
+        with additional functor capabilities. Used
+        as a mean for the open recursion memorization pattern.
+    -} 
     data Tree a = Tree (Tree a) a (Tree a)
     instance Functor Tree where
         fmap f (Tree l x r) = Tree (fmap f l) (f x) (fmap f r)
     
-    -- tree indexer
+    {-|
+        Tree indexer
+    -}
     idx :: Tree a -> Int -> a
     idx (Tree _ x _) 0 = x
     idx (Tree l _ r) k = case (k-1) `divMod` 2 of
         (k', 0) -> idx l k'
         (k', _) -> idx r k' 
 
-    -- natural numbers
+    {-|
+        Natural numbers represented in an
+        infinite binary tree.
+    -}
     nats :: Tree Int
     nats = f 0 1 where
         f :: Int -> Int -> Tree Int
@@ -45,6 +53,8 @@ module Memo where
             r = l + s
             s' = s * 2
     
-    -- converts to list
+    {-|
+        Tree to list converter.
+    -}
     toList :: Tree a -> [a]
     toList ts = map (idx ts) [0..]

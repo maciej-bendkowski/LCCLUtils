@@ -26,45 +26,45 @@ module BCKWTests where
     import BCKW
     import Types
     
-    -- SK trees with bounded size
-    arbSKTerm :: Integral a => a -> Gen Term
-    arbSKTerm 0 = oneof [return B, return C, return K, return W]
-    arbSKTerm n = frequency
+    -- BCKW trees with bounded size
+    arbBCKWTerm :: Integral a => a -> Gen Term
+    arbBCKWTerm 0 = oneof [return B, return C, return K, return W]
+    arbBCKWTerm n = frequency
             [(1, return B), (1, return C), (1, return K), (1, return W),
-            (5, liftM2 (App) (arbSKTerm (n `div` 2)) (arbSKTerm (n `div` 2)))]
+            (5, liftM2 (App) (arbBCKWTerm (n `div` 2)) (arbBCKWTerm (n `div` 2)))]
     
-    -- random SK tree generator
+    -- random BCKW tree generator
     instance Arbitrary Term where
-        arbitrary = sized arbSKTerm
+        arbitrary = sized arbBCKWTerm
     
-    -- SK-terms have non-negative size
-    propCL_NonnegativeSize :: Term -> Property
-    propCL_NonnegativeSize t = collect (size t) $ (size t) >= 0
+    -- BCKW-terms have non-negative size
+    propBCKW_NonnegativeSize :: Term -> Property
+    propBCKW_NonnegativeSize t = collect (size t) $ (size t) >= 0
     
-    -- Each SK-term is a subterm of itself
-    propCL_SubtermItself :: Term -> Property
-    propCL_SubtermItself t = collect (size t) $ t `isSubterm` t
+    -- Each BCKW-term is a subterm of itself
+    propBCKW_SubtermItself :: Term -> Property
+    propBCKW_SubtermItself t = collect (size t) $ t `isSubterm` t
     
     -- Reduction applies only to terms containing redexes
-    propCL_ReductRedex :: Term -> Property
-    propCL_ReductRedex t = collect (size t) $ hasRedex t ==> 
+    propBCKW_ReductRedex :: Term -> Property
+    propBCKW_ReductRedex t = collect (size t) $ hasRedex t ==> 
         case headReduction t of
             (_, _, True) -> True
             _ -> False
     
     -- Don't reduct terms without redexes
-    propCL_DontReductWithoutRedex :: Term -> Property
-    propCL_DontReductWithoutRedex t = collect (size t) $ (not $ hasRedex t) ==> 
+    propBCKW_DontReductWithoutRedex :: Term -> Property
+    propBCKW_DontReductWithoutRedex t = collect (size t) $ (not $ hasRedex t) ==> 
         case headReduction t of
             (_, _, False) -> True
             _ -> False
     
     -- full test suite
     suite :: [([Char], Term -> Property)]
-    suite = [("BCKW-terms have non-negative size", propCL_NonnegativeSize),
-        ("Each BCKW-term is a subterm of itself",  propCL_SubtermItself),
-        ("BCKW-Reduction applies only to terms containing redexes", propCL_ReductRedex),
-        ("Don't reduct BCKW-terms without redexes", propCL_DontReductWithoutRedex)]
+    suite = [("BCKW-terms have non-negative size", propBCKW_NonnegativeSize),
+        ("Each BCKW-term is a subterm of itself",  propBCKW_SubtermItself),
+        ("BCKW-Reduction applies only to terms containing redexes", propBCKW_ReductRedex),
+        ("Don't reduct BCKW-terms without redexes", propBCKW_DontReductWithoutRedex)]
         
     -- test runner
     main :: IO ()

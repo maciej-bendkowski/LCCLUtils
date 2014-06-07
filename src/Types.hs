@@ -21,7 +21,27 @@
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -}
 module Types where
+
+    {-|
+        Class of combinatorial structures admitting "measurable"
+        type functions. In particular a size function which values
+        form combinatorial classes with defined relative density. 
+    -} 
     class Measurable a where
+        {-|
+            A size function which values form
+            combinatorial classes.
+        -}
         size :: a -> Int
+        
+        {-|
+            Generates a list of all objects
+            of the given size.
+        -}
         ofSize :: Int -> [a]
-        density :: (a -> Bool) -> Int -> Int
+        
+        {-|
+            Computes the relative density of objects of size k, satisfying
+            the predicate f in the overall objects of size k.
+        -}
+        density :: (a -> Bool) -> Int -> Float

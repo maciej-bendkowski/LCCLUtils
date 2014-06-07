@@ -29,7 +29,9 @@ module CLParser where
     -- <subterm> := <combinator> | "(" <term> ")"
     -- <term> := <subterm>+
     
-    -- combinator parser
+    {-|
+        A primitive CL combinator parser.
+    -}
     combinatorParser :: Parser Term
     combinatorParser = sParser `dmplus` kParser where
         -- S combinator
@@ -44,6 +46,9 @@ module CLParser where
             _ <- symb "K"
             return K
     
+    {-|
+        A CL subterm parser.
+    -}
     subtermParser :: Parser Term
     subtermParser = termParser' `dmplus` combinatorParser where
         termParser' :: Parser Term
@@ -52,7 +57,10 @@ module CLParser where
             t <- termParser
             _ <- symb ")"
             return t
-            
+    
+    {-|
+        A CL term parser.
+    -}        
     termParser :: Parser Term
     termParser = subtermsParser where
         subtermsParser :: Parser Term
@@ -63,7 +71,11 @@ module CLParser where
                 apply' t [] = t
                 apply' t (t':[]) = App t t'
                 apply' t (t':ts) = apply' (App t t') ts
-                    
+    
+    {-|
+        Attempts to parse a CL term
+        from the given string.
+    -}                
     parseCL :: String -> Maybe Term
     parseCL s = case apply termParser s of
         (x:_) -> if null (snd x) then

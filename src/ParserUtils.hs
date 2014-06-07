@@ -25,11 +25,16 @@ module ParserUtils where
     import Control.Monad
     import Data.Char
     
-    -- recursive descent parser type definition
+    {-|
+        Recursive descent parser type definition.
+    -}
     newtype Parser a = Parser (String -> [(a, String)])
     parse :: Parser a -> String -> [(a, String)]
     parse (Parser p) = p
     
+    {-|
+        Monadic parser definition.
+    -}
     instance Monad Parser where
         return x = Parser $ \s -> [(x, s)]
         p >>= f = Parser $ \s -> concat [ parse (f x) s' | (x, s') <- parse p s]
@@ -38,30 +43,40 @@ module ParserUtils where
         mzero = Parser $ const []
         p `mplus` q = Parser $ \s -> parse p s ++ parse q s
         
-    -- deterministic choice argument
+    {-|
+        Deterministic choice argument
+    -}
     dmplus :: Parser a -> Parser a -> Parser a
     p `dmplus` q = Parser $ \s -> case parse (p `mplus` q) s of
         (x:_) -> [x]
         _ -> []
     
-    -- single char parser    
+    {-|
+        Single char parser
+    -}    
     item :: Parser Char
     item = Parser $ \s -> case s of
         x:xs -> [(x, xs)]
         _ -> []
     
-    -- single char predicate parser    
+    {-|
+        Single char predicate parser
+    -}      
     itemPred :: (Char -> Bool) -> Parser Char
     itemPred p = do
         x <- item
         if p x then return x
         else mzero
     
-    -- single char parser functional  
+    {-|
+        Single functional char parser
+    -} 
     char :: Char -> Parser Char
     char x = itemPred (x ==)
     
-    -- single string parser functional
+    {-|
+        Single functional string parser
+    -}
     str :: String -> Parser String
     str "" = return ""
     str (x:xs) = do
@@ -69,32 +84,44 @@ module ParserUtils where
         _ <- str xs
         return (x:xs)
         
-    -- Kleene star operator    
+    {-|
+        Kleene star operator
+    -} 
     star :: Parser a -> Parser [a]
     star p = pstar p `dmplus` return [] 
     
-    -- Kleene plus operator
+    {-|
+        Kleene plus operator
+    -} 
     pstar :: Parser a -> Parser [a]
     pstar p = do
         x <- p
         xs <- star p
         return (x:xs)
         
-    -- whitespace parser
+    {-|
+        Whitespace parser
+    -} 
     space :: Parser String
     space = star $ itemPred isSpace
     
-    -- parse a token and then remove trailing space
+    {-|
+        Token parser removing trailing space.
+    -} 
     token :: Parser a -> Parser a
     token p = do
         x <- p
         _ <- space
         return x
     
-    -- parse a symbolic token   
+    {-|
+        Symbolic token parser
+    -}   
     symb :: String -> Parser String
     symb s = token $ str s
     
-    -- apply a parser removing leading space
+    {-|
+        Applies a parser removing leading whitespace.
+    -} 
     apply :: Parser a -> String -> [(a, String)]
     apply p = parse (do { _ <- space; p })
