@@ -19,21 +19,21 @@ library
                    QuickCheck
   ghc-options:     -Wall
   other-modules:   
-                   Memo,
-                   LCTests,
-                   TranslatorTest,
-                   BCKW,
                    BCKWTests,
-                   BCKWTranslator,
                    BCKWTranslatorTest,
-                   Types,
                    CLUtils,
-                   CommonUtils
+                   CommonUtils,
+                   LCTests,
+                   Memo,
+                   TranslatorTest
   exposed-modules: 
+                   BCKW,
+                   BCKWTranslator,
                    CL,
+                   CLLCTranslator,
                    CLParser,
                    LC,
                    LCParser,
                    ParserUtils,
-                   CLLCTranslator
+                   Types
 
