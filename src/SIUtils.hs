@@ -20,12 +20,10 @@
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -}
-module CLUtils where
+module SIUtils where
     import Data.List
     import Types
-    import CL
-    import CLParser
-    import Data.Maybe
+    import SI
     
     {-|
         Finds candidates of size k, that do not admit a normal form
@@ -52,17 +50,3 @@ module CLUtils where
     normalize :: Int -> [Term] -> [Term]
     normalize k ts = map normalForm $ (tms \\ ts) where
         tms = concat . take (k + 1) $ map ofSize [0..]
-    
-    {-|
-       Check if the given term is an S-term.
-    -}
-    isSTerm :: Term -> Bool
-    isSTerm S = True
-    isSTerm K = False
-    isSTerm (App t t') = (isSTerm t && isSTerm t')
-    
-    {-|
-        List of two S-terms of size 6 without normal forms.
-    -}    
-    leastWithoutNF :: [Term]
-    leastWithoutNF = [fromJust $ parseCL "SSS(SS)SS", fromJust $ parseCL "S(SS)SSSS"]

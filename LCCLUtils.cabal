@@ -25,7 +25,9 @@ library
                    CommonUtils,
                    LCTests,
                    Memo,
-                   TranslatorTest
+                   TranslatorTest,
+                   SI,
+                   SIUtils
   exposed-modules: 
                    BCKW,
                    BCKWTranslator,
